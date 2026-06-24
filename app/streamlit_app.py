@@ -82,12 +82,12 @@ def main() -> None:
     st.subheader("Data Uploads")
     col_upload_1, col_upload_2, col_upload_3 = st.columns(3)
     
-    uploaded_opt = col_upload_1.file_uploader("Cloudy Optical GeoTIFF (Sentinel-2, 4-bands)", type=["tif", "tiff"])
-    uploaded_sar = col_upload_2.file_uploader("SAR GeoTIFF (Sentinel-1, VV/VH)", type=["tif", "tiff"])
-    uploaded_mask = col_upload_3.file_uploader("Cloud Mask GeoTIFF (Optional, 1-band)", type=["tif", "tiff"])
+    uploaded_opt = col_upload_1.file_uploader("Cloudy Optical GeoTIFF (e.g., sentinel2_cloudy.tif)", type=["tif", "tiff"])
+    uploaded_sar = col_upload_2.file_uploader("SAR GeoTIFF (e.g., sentinel1_grd.tif)", type=["tif", "tiff"])
+    uploaded_mask = col_upload_3.file_uploader("Cloud Mask GeoTIFF (Optional, e.g., cloud_mask.tif)", type=["tif", "tiff"])
 
     if uploaded_opt is None or uploaded_sar is None:
-        st.info("Please upload both a Cloudy Optical GeoTIFF and a SAR GeoTIFF to begin.")
+        st.info("Please upload both 'sentinel2_cloudy.tif' (Cloudy Optical) and 'sentinel1_grd.tif' (SAR) from your 'data/raw/' directory to begin.")
         st.stop()
 
     if st.button("Run Reconstruction & Stitching", type="primary"):

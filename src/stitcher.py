@@ -66,12 +66,19 @@ class TiledPredictorStitcher:
             profile = ref.profile.copy()
             height = ref.height
             width = ref.width
-            # Read first 4 optical bands (C, H, W)
-            optical_data = ref.read(list(range(1, min(5, ref.count + 1)))).astype(np.float32)
+            # Read optical bands (C, H, W)
+            if ref.count >= 10:
+                # Sentinel-2 raw/11-band scene: extract B02, B03, B04, B08 (indices 2, 3, 4, 6 in 1-based indexing)
+                LOGGER.info("Detected Sentinel-2 multi-band scene (%d bands). Extracting B02, B03, B04, B08.", ref.count)
+                optical_data = ref.read([2, 3, 4, 6]).astype(np.float32)
+            else:
+                # Fallback: read the first 4 bands
+                optical_data = ref.read(list(range(1, min(5, ref.count + 1)))).astype(np.float32)
+            
             # Normalize optical data to [0, 1]
-            # Simple normalization using percentile as in data_pipeline
             optical_data = optical_data / max(1.0, float(np.percentile(optical_data, 99.5)))
             optical_data = np.clip(optical_data, 0.0, 1.0)
+
 
         # 1. Reproject and align SAR to match optical reference grid
         sar_data = reproject_to_reference(sar_path, optical_path)
