@@ -8,8 +8,10 @@ import json
 import logging
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
+
 
 from src.constants import BAND_NIR, BAND_RED
 
@@ -89,7 +91,7 @@ def masked_ssim(prediction: np.ndarray, target: np.ndarray, cloud_mask: np.ndarr
         covxy = float(np.mean((x - mux) * (y - muy)))
         numerator = (2.0 * mux * muy + c1) * (2.0 * covxy + c2)
         denominator = (mux**2 + muy**2 + c1) * (varx + vary + c2)
-        scores.append(float(numerator / denominator))
+        scores.append(numerator / denominator)
     return float(np.mean(scores))
 
 
@@ -152,7 +154,7 @@ def load_metadata(raw_metadata: np.ndarray | str) -> dict[str, object]:
     if isinstance(raw_metadata, np.ndarray):
         raw = str(raw_metadata.tolist())
     else:
-        raw = str(raw_metadata)
+        raw = raw_metadata
     return json.loads(raw)
 
 
@@ -190,7 +192,7 @@ def _json_safe(value: float | None) -> float | None:
         return None
     if not np.isfinite(value):
         return None
-    return float(value)
+    return value
 
 
 def write_metric_csv(path: Path, rows: list[MetricRow]) -> None:
@@ -252,7 +254,7 @@ def evaluate_inference_directory(inference_dir: Path, output_dir: Path) -> dict[
     write_metric_csv(output_dir / "metrics_table.csv", metric_rows)
     write_delta_csv(output_dir / "sar_ablation_delta.csv", delta_rows)
 
-    summary: dict[str, object] = {"models": {}, "sar_ablation_delta": {}}
+    summary: dict[str, Any] = {"models": {}, "sar_ablation_delta": {}}
     for model_name in sorted({row.model for row in metric_rows}):
         rows = [row for row in metric_rows if row.model == model_name]
         summary["models"][model_name] = {

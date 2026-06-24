@@ -251,6 +251,8 @@ def build_from_geotiffs(
         split = _split_for_index(index, total, train_fraction=0.7, val_fraction=0.15)
         
         if has_real_cloudy:
+            assert mask_full is not None
+            assert cloudy_optical_full is not None
             mask = mask_full[row : row + patch_size, col : col + patch_size]
             cloudy = cloudy_optical_full[:, row : row + patch_size, col : col + patch_size]
         else:
@@ -258,9 +260,11 @@ def build_from_geotiffs(
             cloudy = transplant_clouds(clear, mask, seed=int(rng.integers(0, 2**31 - 1)))
             
         if has_real_sar:
+            assert sar_full is not None
             sar = sar_full[:, row : row + patch_size, col : col + patch_size]
         else:
             sar = make_synthetic_sar_tile(clear, seed=int(rng.integers(0, 2**31 - 1)))
+
             
         sample_id = f"{clear_path.stem}_{row:05d}_{col:05d}"
         metadata = SampleMetadata(
