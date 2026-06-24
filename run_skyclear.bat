@@ -119,6 +119,13 @@ goto :done
 echo ===================================================
 echo [SkyClearAI] Running pipeline using REAL Sentinel data
 echo ===================================================
+if exist "data\raw\sentinel2_clear.tif" (
+    if exist "checkpoints\model1_latest.pt" (
+        echo [INFO] Real Sentinel data and trained checkpoint found.
+        echo [INFO] Skipping pipeline steps and launching the dashboard directly...
+        goto :app
+    )
+)
 if not exist "data\raw\sentinel2_clear.tif" (
     echo [INFO] Real Sentinel data not found in data\raw. Acquiring data first...
     call :download
