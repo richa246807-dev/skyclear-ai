@@ -71,9 +71,10 @@ def main() -> None:
     # Sidebar inputs
     st.sidebar.header("Configuration")
     checkpoint_path = Path(st.sidebar.text_input("Model 1 Checkpoint", "checkpoints/model1_latest.pt"))
-    patch_size = int(st.sidebar.number_input("Patch Size", min_value=64, max_value=512, value=256, step=64))
-    overlap = int(st.sidebar.number_input("Patch Overlap", min_value=0, max_value=256, value=64, step=16))
-    base_channels = int(st.sidebar.number_input("Base Channels", min_value=4, max_value=64, value=32, step=4))
+    patch_size = st.sidebar.number_input("Patch Size", min_value=64, max_value=512, value=256, step=64)
+    overlap = st.sidebar.number_input("Patch Overlap", min_value=0, max_value=256, value=64, step=16)
+    base_channels = st.sidebar.number_input("Base Channels", min_value=4, max_value=64, value=32, step=4)
+
     baseline_backend = st.sidebar.selectbox("Baseline Backend", ["auto", "lama", "stable-diffusion", "simple"])
     allow_random = st.sidebar.checkbox("Allow untrained weights (for testing)", value=True)
 
