@@ -120,17 +120,17 @@ def generate_realistic_cloud_mask(
     field = np.zeros((height, width), dtype=np.float32)
     n_blobs = int(rng.integers(8, 22))
     for _ in range(n_blobs):
-        cy = float(rng.uniform(0, height))
-        cx = float(rng.uniform(0, width))
-        sy = float(rng.uniform(height * 0.04, height * 0.18))
-        sx = float(rng.uniform(width * 0.04, width * 0.2))
-        amplitude = float(rng.uniform(0.6, 1.4))
+        cy = rng.uniform(0, height)
+        cx = rng.uniform(0, width)
+        sy = rng.uniform(height * 0.04, height * 0.18)
+        sx = rng.uniform(width * 0.04, width * 0.2)
+        amplitude = rng.uniform(0.6, 1.4)
         blob = np.exp(-(((yy - cy) ** 2) / (2.0 * sy**2) + ((xx - cx) ** 2) / (2.0 * sx**2)))
         field += amplitude * blob.astype(np.float32)
 
     field += 0.25 * rng.random((height, width), dtype=np.float32)
     field = _blur_3x3(field, passes=3)
-    target_coverage = float(rng.uniform(min_cov, max_cov))
+    target_coverage = rng.uniform(min_cov, max_cov)
     threshold = float(np.quantile(field, 1.0 - target_coverage))
     binary = (field >= threshold).astype(np.float32)
     return feather_mask(binary, radius=feather_radius)
@@ -162,7 +162,7 @@ def make_synthetic_clear_tile(
     xx = xx / max(1, width - 1)
     base = np.empty((bands, height, width), dtype=np.float32)
     for band in range(bands):
-        phase = float(rng.uniform(0.0, np.pi))
+        phase = rng.uniform(0.0, np.pi)
         texture = 0.08 * np.sin((band + 1) * np.pi * xx + phase)
         texture += 0.06 * np.cos((band + 2) * np.pi * yy - phase)
         base[band] = 0.25 + 0.45 * xx + 0.2 * yy + texture
@@ -227,7 +227,7 @@ def transplant_clouds(
     cfg = config or CloudSynthesisConfig()
     rng = _rng(seed)
     mask = feather_mask(cloud_mask, radius=cfg.feather_radius)
-    opacity = float(rng.uniform(cfg.cloud_opacity_min, cfg.cloud_opacity_max))
+    opacity = rng.uniform(cfg.cloud_opacity_min, cfg.cloud_opacity_max)
     cloud_color = rng.uniform(0.78, 1.0, size=(bands, 1, 1)).astype(np.float32)
     cloudy = clear_optical * (1.0 - opacity * mask[None, :, :])
     cloudy += cloud_color * opacity * mask[None, :, :]
@@ -237,7 +237,7 @@ def transplant_clouds(
     shadow = np.zeros_like(mask)
     shadow[shift_y:, shift_x:] = mask[: height - shift_y, : width - shift_x]
     shadow = feather_mask(shadow, radius=cfg.feather_radius)
-    shadow_opacity = float(rng.uniform(cfg.shadow_opacity_min, cfg.shadow_opacity_max))
+    shadow_opacity = rng.uniform(cfg.shadow_opacity_min, cfg.shadow_opacity_max)
     visible_shadow = np.clip(shadow - mask, 0.0, 1.0)
     cloudy *= 1.0 - shadow_opacity * visible_shadow[None, :, :]
 
@@ -320,6 +320,6 @@ def get_s2cloudless_mask(bands_10_data: np.ndarray, threshold: float = 0.4) -> n
         data_hwc = data_hwc / 10000.0
     data_hwc = np.clip(data_hwc, 0.0, 1.0)
     detector = S2PixelCloudDetector(threshold=threshold, average_over=4, dilation_size=2)
-    mask = detector.get_cloud_mask(data_hwc)
+    mask = detector.get_cloud_masks(data_hwc[np.newaxis, ...])[0]
     return mask.astype(np.float32)
 
