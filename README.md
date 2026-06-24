@@ -161,6 +161,8 @@ Launch the Streamlit web application to perform tiled inference and seam-blendin
 streamlit run app/streamlit_app.py
 ```
 
+*Note: You can use the raw imagery acquired from Step 1 for the dashboard. Upload the files located in the `data/raw/` directory (e.g., `data/raw/sentinel2_cloudy.tif` for optical and `data/raw/sentinel1_grd.tif` for SAR).*
+
 ---
 
 ## Data Contract and Constants
