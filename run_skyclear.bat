@@ -9,9 +9,13 @@ if "%MODE%"=="" set "MODE=full"
 
 set "PYTHON_EXE=python"
 if exist ".venv\Scripts\python.exe" set "PYTHON_EXE=.venv\Scripts\python.exe"
+if exist "venv\Scripts\python.exe" set "PYTHON_EXE=venv\Scripts\python.exe"
+if exist "env\Scripts\python.exe" set "PYTHON_EXE=env\Scripts\python.exe"
 
 set "STREAMLIT_EXE=streamlit"
 if exist ".venv\Scripts\streamlit.exe" set "STREAMLIT_EXE=.venv\Scripts\streamlit.exe"
+if exist "venv\Scripts\streamlit.exe" set "STREAMLIT_EXE=venv\Scripts\streamlit.exe"
+if exist "env\Scripts\streamlit.exe" set "STREAMLIT_EXE=env\Scripts\streamlit.exe"
 
 rem Default environment values
 if "%SKYCLEAR_NUM_SAMPLES%"=="" set "SKYCLEAR_NUM_SAMPLES=24"
