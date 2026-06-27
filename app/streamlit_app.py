@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 from PIL import Image
@@ -12,6 +13,7 @@ from PIL import Image
 import numpy as np
 import rasterio
 from streamlit_image_comparison import image_comparison
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -29,15 +31,14 @@ def save_uploaded_to_temp(uploaded_file: Any) -> Path:
         handle.write(uploaded_file.getvalue())
         return Path(handle.name)
 
+
 def optical_to_rgb(optical: np.ndarray) -> np.ndarray:
     from src.constants import BAND_RED, BAND_GREEN, BAND_BLUE
 
     if optical.shape[0] >= 4:
-        rgb = np.stack([
-            optical[BAND_RED],
-            optical[BAND_GREEN],
-            optical[BAND_BLUE]
-        ], axis=-1)
+        rgb = np.stack(
+            [optical[BAND_RED], optical[BAND_GREEN], optical[BAND_BLUE]], axis=-1
+        )
     else:
         rgb = np.moveaxis(optical[:3], 0, -1)
 
@@ -51,7 +52,7 @@ def optical_to_rgb(optical: np.ndarray) -> np.ndarray:
 
     # Gamma Correction
     gamma = 0.9
-    rgb = rgb ** gamma
+    rgb = rgb**gamma
 
     rgb = (rgb * 255).astype(np.uint8)
     return rgb
@@ -61,6 +62,7 @@ def resize_for_comparison(img, width=700):
     h, w = img.shape[:2]
     new_height = int(h * width / w)
     return np.array(Image.fromarray(img).resize((width, new_height)))
+
 
 def read_and_preview_raster(path: Path, max_dim: int = 512) -> np.ndarray:
     """Read a raster with optional downsampling for preview visualization."""
@@ -82,11 +84,7 @@ def main() -> None:
     import torch
     import streamlit as st
 
-    st.set_page_config(
-    page_title="SkyClearAI",
-    page_icon="🛰️",
-    layout="wide"
-)
+    st.set_page_config(page_title="SkyClearAI", page_icon="🛰️", layout="wide")
 
     st.title("🛰️ SkyClearAI")
 
@@ -102,27 +100,48 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
 
     # Sidebar inputs
     st.sidebar.header("Configuration")
-    checkpoint_path = Path(st.sidebar.text_input("Model 1 Checkpoint", "checkpoints/model1_latest.pt"))
-    patch_size = st.sidebar.number_input("Patch Size", min_value=64, max_value=512, value=256, step=64)
-    overlap = st.sidebar.number_input("Patch Overlap", min_value=0, max_value=256, value=64, step=16)
-    base_channels = st.sidebar.number_input("Base Channels", min_value=4, max_value=64, value=32, step=4)
+    checkpoint_path = Path(
+        st.sidebar.text_input("Model 1 Checkpoint", "checkpoints/model1_latest.pt")
+    )
+    patch_size = st.sidebar.number_input(
+        "Patch Size", min_value=64, max_value=512, value=256, step=64
+    )
+    overlap = st.sidebar.number_input(
+        "Patch Overlap", min_value=0, max_value=256, value=64, step=16
+    )
+    base_channels = st.sidebar.number_input(
+        "Base Channels", min_value=4, max_value=64, value=32, step=4
+    )
 
-    baseline_backend = st.sidebar.selectbox("Baseline Backend", ["auto", "lama", "stable-diffusion", "simple"])
-    allow_random = st.sidebar.checkbox("Allow untrained weights (for testing)", value=True)
+    baseline_backend = st.sidebar.selectbox(
+        "Baseline Backend", ["auto", "lama", "stable-diffusion", "simple"]
+    )
+    allow_random = st.sidebar.checkbox(
+        "Allow untrained weights (for testing)", value=True
+    )
 
     # File uploads
     st.subheader("Data Uploads")
     col_upload_1, col_upload_2, col_upload_3 = st.columns(3)
-    
-    uploaded_opt = col_upload_1.file_uploader("Cloudy Optical GeoTIFF (e.g., sentinel2_cloudy.tif)", type=["tif", "tiff"])
-    uploaded_sar = col_upload_2.file_uploader("SAR GeoTIFF (e.g., sentinel1_grd.tif)", type=["tif", "tiff"])
-    uploaded_mask = col_upload_3.file_uploader("Cloud Mask GeoTIFF (Optional, e.g., cloud_mask.tif)", type=["tif", "tiff"])
+
+    uploaded_opt = col_upload_1.file_uploader(
+        "Cloudy Optical GeoTIFF (e.g., sentinel2_cloudy.tif)", type=["tif", "tiff"]
+    )
+    uploaded_sar = col_upload_2.file_uploader(
+        "SAR GeoTIFF (e.g., sentinel1_grd.tif)", type=["tif", "tiff"]
+    )
+    uploaded_mask = col_upload_3.file_uploader(
+        "Cloud Mask GeoTIFF (Optional, e.g., cloud_mask.tif)", type=["tif", "tiff"]
+    )
 
     if uploaded_opt is None or uploaded_sar is None:
-        st.info("Please upload both 'sentinel2_cloudy.tif' (Cloudy Optical) and 'sentinel1_grd.tif' (SAR) from your 'data/raw/' directory to begin.")
+        st.info(
+            "Please upload both 'sentinel2_cloudy.tif' (Cloudy Optical) and 'sentinel1_grd.tif' (SAR) from your 'data/raw/' directory to begin."
+        )
         st.stop()
 
     if st.button("Run Reconstruction & Stitching", type="primary"):
+        start_time = time.time()
         # Save uploaded files to temp
         opt_temp_path = save_uploaded_to_temp(uploaded_opt)
         sar_temp_path = save_uploaded_to_temp(uploaded_sar)
@@ -139,7 +158,9 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
             st.stop()
 
         if opt_count < 4:
-            st.error(f"The uploaded Cloudy Optical GeoTIFF has only {opt_count} band(s). It must have at least 4 bands (Blue, Green, Red, NIR). Please make sure you did not upload the SAR image (sentinel1_grd.tif) in the Optical slot.")
+            st.error(
+                f"The uploaded Cloudy Optical GeoTIFF has only {opt_count} band(s). It must have at least 4 bands (Blue, Green, Red, NIR). Please make sure you did not upload the SAR image (sentinel1_grd.tif) in the Optical slot."
+            )
             opt_temp_path.unlink(missing_ok=True)
             sar_temp_path.unlink(missing_ok=True)
             if mask_temp_path:
@@ -147,7 +168,7 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
             st.stop()
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+
         with st.spinner("Loading models and preparing stitcher..."):
             try:
                 model1 = load_model1(
@@ -157,7 +178,9 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
                     allow_random_weights=allow_random,
                 )
                 baseline = BaselineInpainter(
-                    BaselineConfig(backend=baseline_backend, allow_simple_fallback=True),
+                    BaselineConfig(
+                        backend=baseline_backend, allow_simple_fallback=True
+                    ),
                     device=device,
                 )
                 stitcher = TiledPredictorStitcher(
@@ -171,7 +194,9 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
                 st.error(f"Error loading models: {e}")
                 st.stop()
 
-        with st.spinner("Performing tiled reconstruction and blending overlap seams..."):
+        with st.spinner(
+            "Performing tiled reconstruction and blending overlap seams..."
+        ):
             try:
                 temp_output_dir = Path(tempfile.mkdtemp(prefix="skyclear_outputs_"))
                 stitched_outputs = stitcher.process_and_stitch(
@@ -181,6 +206,7 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
                     output_dir=temp_output_dir,
                 )
                 st.success("Reconstruction complete!")
+                processing_time = time.time() - start_time
                 col1, col2, col3, col4 = st.columns(4)
 
                 col1.metric("Status", "Completed ✅")
@@ -195,36 +221,71 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
         opt_preview = read_and_preview_raster(opt_temp_path)
     
         mask_preview = read_and_preview_raster(stitched_outputs["cloud_mask"])[0]
+        cloud_percentage = float(mask_preview.mean() * 100)
         m1_preview = read_and_preview_raster(stitched_outputs["model1_output"])
         m2_preview = read_and_preview_raster(stitched_outputs["model2_output"])
-        
+        height, width = opt_preview.shape[1:]
+
         # Display results
         st.divider()
+
+        st.header("🛰 Satellite Analysis")
+
+        c1, c2, c3 = st.columns(3)
+
+        c1.metric("☁ Cloud Coverage", f"{cloud_percentage:.1f}%")
+
+        c2.metric("📐 Image Size", f"{width} × {height}")
+
+        c3.metric("🧩 Patch Size", f"{patch_size} × {patch_size}")
+
+        c4, c5, c6 = st.columns(3)
+
+        c4.metric("💻 Device", device.upper())
+
+        c5.metric("⏱ Processing Time", f"{processing_time:.2f} sec")
+
+        c6.metric("✅ Status", "Completed")
+
         st.header("🖼 Reconstruction Results")
-        st.subheader("Visual Preview")
         st.subheader("🔄 Before / After Comparison")
-        
 
         image_comparison(
-        img1=resize_for_comparison(optical_to_rgb(opt_preview)),
-        img2=resize_for_comparison(optical_to_rgb(m1_preview)),
-        label1="Cloudy Sentinel-2",
-        label2="SkyClearAI Reconstruction",
+            img1=resize_for_comparison(optical_to_rgb(opt_preview)),
+            img2=resize_for_comparison(optical_to_rgb(m1_preview)),
+            label1="Cloudy Sentinel-2",
+            label2="SkyClearAI Reconstruction",
         )
-        
 
         col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
-        col_res_1.image(optical_to_rgb(opt_preview), caption="☁️ Cloudy Optical Image", use_container_width=True)
-        col_res_2.image(mask_preview, caption="☁️ Estimated Cloud Mask", clamp=True, use_container_width=True)
-        col_res_3.image(optical_to_rgb(m1_preview), caption="🤖 AI Reconstruction (SAR Fusion) Stitched", use_container_width=True)
-        col_res_4.image(optical_to_rgb(m2_preview), caption="🧩 Baseline Reconstruction Stitched", use_container_width=True)
+        col_res_1.image(
+            optical_to_rgb(opt_preview),
+            caption="☁️ Cloudy Optical Image",
+            use_container_width=True,
+        )
+        col_res_2.image(
+            mask_preview,
+            caption="☁️ Estimated Cloud Mask",
+            clamp=True,
+            use_container_width=True,
+        )
+        col_res_3.image(
+            optical_to_rgb(m1_preview),
+            caption="🤖 AI Reconstruction (SAR Fusion) Stitched",
+            use_container_width=True,
+        )
+        col_res_4.image(
+            optical_to_rgb(m2_preview),
+            caption="🧩 Baseline Reconstruction Stitched",
+            use_container_width=True,
+        )
 
         # Download Buttons
         st.divider()
         st.header("📥 Download Products")
         st.subheader("Download Reconstructed Products")
         col_dl_1, col_dl_2, col_dl_3 = st.columns(3)
-        
+
         # M1 Download
         with open(stitched_outputs["model1_output"], "rb") as f:
             col_dl_1.download_button(
@@ -233,7 +294,7 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
                 file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model1.tif",
                 mime="image/tiff",
             )
-            
+
         # M2 Download
         with open(stitched_outputs["model2_output"], "rb") as f:
             col_dl_2.download_button(
