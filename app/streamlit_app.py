@@ -28,17 +28,31 @@ def save_uploaded_to_temp(uploaded_file: Any) -> Path:
         handle.write(uploaded_file.getvalue())
         return Path(handle.name)
 
-
 def optical_to_rgb(optical: np.ndarray) -> np.ndarray:
-    """Convert channel-first optical data to display RGB."""
     from src.constants import BAND_RED, BAND_GREEN, BAND_BLUE
+
     if optical.shape[0] >= 4:
-        rgb = np.stack([optical[BAND_RED], optical[BAND_GREEN], optical[BAND_BLUE]], axis=-1)
-    elif optical.shape[0] >= 3:
-        rgb = np.moveaxis(optical[:3], 0, -1)
+        rgb = np.stack([
+            optical[BAND_RED],
+            optical[BAND_GREEN],
+            optical[BAND_BLUE]
+        ], axis=-1)
     else:
-        rgb = np.repeat(optical[0, :, :, None], 3, axis=2)
-    return np.clip(rgb, 0.0, 1.0)
+        rgb = np.moveaxis(optical[:3], 0, -1)
+
+    rgb = rgb.astype(np.float32)
+
+    # Contrast Stretch
+    p2 = np.percentile(rgb, 2)
+    p98 = np.percentile(rgb, 98)
+
+    rgb = np.clip((rgb - p2) / (p98 - p2 + 1e-6), 0, 1)
+
+    # Gamma Correction
+    gamma = 0.9
+    rgb = rgb ** gamma
+
+    return rgb
 
 
 def read_and_preview_raster(path: Path, max_dim: int = 512) -> np.ndarray:
@@ -155,12 +169,11 @@ def main() -> None:
 
         # Load previews
         opt_preview = read_and_preview_raster(opt_temp_path)
-        st.write("OPT Preview:", opt_preview.shape, opt_preview.dtype, float(opt_preview.min()), float(opt_preview.max()))
+    
         mask_preview = read_and_preview_raster(stitched_outputs["cloud_mask"])[0]
         m1_preview = read_and_preview_raster(stitched_outputs["model1_output"])
-        st.write("M1 Preview:", m1_preview.shape, m1_preview.dtype, float(m1_preview.min()), float(m1_preview.max()))
         m2_preview = read_and_preview_raster(stitched_outputs["model2_output"])
-        st.write("M2 Preview:", m2_preview.shape, m2_preview.dtype, float(m2_preview.min()), float(m2_preview.max()))
+        
         # Display results
         st.subheader("Visual Preview")
         col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
