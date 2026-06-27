@@ -75,12 +75,23 @@ def main() -> None:
     import torch
     import streamlit as st
 
-    st.set_page_config(page_title="SkyClearAI — Operational SAR-Optical Reconstruction", layout="wide")
-    st.title("SkyClearAI — Operational SAR-Optical Reconstruction")
-    st.markdown(
-        "Upload cloudy Sentinel-2 and aligned Sentinel-1 imagery to reconstruct surface features "
-        "using a SAR-fused U-Net and zero-shot baseline inpainting, stitched back to fully georeferenced output GeoTIFFs."
-    )
+    st.set_page_config(
+    page_title="SkyClearAI",
+    page_icon="🛰️",
+    layout="wide"
+)
+
+    st.title("🛰️ SkyClearAI")
+
+    st.markdown("""
+### AI-Powered Satellite Cloud Removal & Earth Observation
+
+Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep Learning**.
+
+**ISRO Bharatiya Antariksh Hackathon 2026 Prototype**
+""")
+
+    st.divider()
 
     # Sidebar inputs
     st.sidebar.header("Configuration")
@@ -163,6 +174,12 @@ def main() -> None:
                     output_dir=temp_output_dir,
                 )
                 st.success("Reconstruction complete!")
+                col1, col2, col3, col4 = st.columns(4)
+
+                col1.metric("Status", "Completed ✅")
+                col2.metric("Patch Size", patch_size)
+                col3.metric("Device", device.upper())
+                col4.metric("Model", "SkyClearAI")
             except Exception as e:
                 st.error(f"Error during reconstruction: {e}")
                 st.stop()
@@ -175,14 +192,18 @@ def main() -> None:
         m2_preview = read_and_preview_raster(stitched_outputs["model2_output"])
         
         # Display results
+        st.divider()
+        st.header("🖼 Reconstruction Results")
         st.subheader("Visual Preview")
         col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
-        col_res_1.image(optical_to_rgb(opt_preview), caption="Input Cloudy Optical", use_container_width=True)
-        col_res_2.image(mask_preview, caption="Stitched Cloud Mask", clamp=True, use_container_width=True)
-        col_res_3.image(optical_to_rgb(m1_preview), caption="Model 1 (SAR Fusion) Stitched", use_container_width=True)
-        col_res_4.image(optical_to_rgb(m2_preview), caption="Model 2 (Baseline) Stitched", use_container_width=True)
+        col_res_1.image(optical_to_rgb(opt_preview), caption="☁️ Cloudy Optical Image", use_container_width=True)
+        col_res_2.image(mask_preview, caption="☁️ Estimated Cloud Mask", clamp=True, use_container_width=True)
+        col_res_3.image(optical_to_rgb(m1_preview), caption="🤖 AI Reconstruction (SAR Fusion) Stitched", use_container_width=True)
+        col_res_4.image(optical_to_rgb(m2_preview), caption="🧩 Baseline Reconstruction Stitched", use_container_width=True)
 
         # Download Buttons
+        st.divider()
+        st.header("📥 Download Products")
         st.subheader("Download Reconstructed Products")
         col_dl_1, col_dl_2, col_dl_3 = st.columns(3)
         
