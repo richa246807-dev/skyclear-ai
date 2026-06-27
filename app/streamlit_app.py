@@ -7,10 +7,11 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+from PIL import Image
 
 import numpy as np
 import rasterio
-
+from streamlit_image_comparison import image_comparison
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -52,8 +53,14 @@ def optical_to_rgb(optical: np.ndarray) -> np.ndarray:
     gamma = 0.9
     rgb = rgb ** gamma
 
+    rgb = (rgb * 255).astype(np.uint8)
     return rgb
 
+
+def resize_for_comparison(img, width=700):
+    h, w = img.shape[:2]
+    new_height = int(h * width / w)
+    return np.array(Image.fromarray(img).resize((width, new_height)))
 
 def read_and_preview_raster(path: Path, max_dim: int = 512) -> np.ndarray:
     """Read a raster with optional downsampling for preview visualization."""
@@ -195,6 +202,17 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
         st.divider()
         st.header("🖼 Reconstruction Results")
         st.subheader("Visual Preview")
+        st.subheader("🔄 Before / After Comparison")
+        
+
+        image_comparison(
+        img1=resize_for_comparison(optical_to_rgb(opt_preview)),
+        img2=resize_for_comparison(optical_to_rgb(m1_preview)),
+        label1="Cloudy Sentinel-2",
+        label2="SkyClearAI Reconstruction",
+        )
+        
+
         col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
         col_res_1.image(optical_to_rgb(opt_preview), caption="☁️ Cloudy Optical Image", use_container_width=True)
         col_res_2.image(mask_preview, caption="☁️ Estimated Cloud Mask", clamp=True, use_container_width=True)
