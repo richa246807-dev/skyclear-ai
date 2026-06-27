@@ -155,10 +155,12 @@ def main() -> None:
 
         # Load previews
         opt_preview = read_and_preview_raster(opt_temp_path)
+        st.write("OPT Preview:", opt_preview.shape, opt_preview.dtype, float(opt_preview.min()), float(opt_preview.max()))
         mask_preview = read_and_preview_raster(stitched_outputs["cloud_mask"])[0]
         m1_preview = read_and_preview_raster(stitched_outputs["model1_output"])
+        st.write("M1 Preview:", m1_preview.shape, m1_preview.dtype, float(m1_preview.min()), float(m1_preview.max()))
         m2_preview = read_and_preview_raster(stitched_outputs["model2_output"])
-
+        st.write("M2 Preview:", m2_preview.shape, m2_preview.dtype, float(m2_preview.min()), float(m2_preview.max()))
         # Display results
         st.subheader("Visual Preview")
         col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
