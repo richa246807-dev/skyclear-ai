@@ -219,7 +219,7 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
 
         # Load previews
         opt_preview = read_and_preview_raster(opt_temp_path)
-    
+
         mask_preview = read_and_preview_raster(stitched_outputs["cloud_mask"])[0]
         cloud_percentage = float(mask_preview.mean() * 100)
         m1_preview = read_and_preview_raster(stitched_outputs["model1_output"])
@@ -247,71 +247,80 @@ Reconstruct cloud-covered Sentinel-2 imagery using **SAR + Optical Fusion Deep L
 
         c6.metric("✅ Status", "Completed")
 
-        st.header("🖼 Reconstruction Results")
-        st.subheader("🔄 Before / After Comparison")
-
-        image_comparison(
+        tab1, tab2, tab3 = st.tabs(
+            [
+                "🔄 Comparison",
+                "🖼 Visual Preview",
+                "📥 Downloads",
+            ]
+        )
+        with tab1:
+            st.header("🖼 Reconstruction Results")
+            st.subheader("🔄 Before / After Comparison")
+    
+            image_comparison(
             img1=resize_for_comparison(optical_to_rgb(opt_preview)),
             img2=resize_for_comparison(optical_to_rgb(m1_preview)),
             label1="Cloudy Sentinel-2",
             label2="SkyClearAI Reconstruction",
         )
-
-        col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
-        col_res_1.image(
-            optical_to_rgb(opt_preview),
-            caption="☁️ Cloudy Optical Image",
-            use_container_width=True,
-        )
-        col_res_2.image(
-            mask_preview,
-            caption="☁️ Estimated Cloud Mask",
-            clamp=True,
-            use_container_width=True,
-        )
-        col_res_3.image(
-            optical_to_rgb(m1_preview),
-            caption="🤖 AI Reconstruction (SAR Fusion) Stitched",
-            use_container_width=True,
-        )
-        col_res_4.image(
-            optical_to_rgb(m2_preview),
-            caption="🧩 Baseline Reconstruction Stitched",
-            use_container_width=True,
-        )
+        with tab2:
+            col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
+            col_res_1.image(
+                optical_to_rgb(opt_preview),
+                caption="☁️ Cloudy Optical Image",
+                use_container_width=True,
+            )
+            col_res_2.image(
+                mask_preview,
+                caption="☁️ Estimated Cloud Mask",
+                clamp=True,
+                use_container_width=True,
+            )
+            col_res_3.image(
+                optical_to_rgb(m1_preview),
+                caption="🤖 AI Reconstruction (SAR Fusion) Stitched",
+                use_container_width=True,
+            )
+            col_res_4.image(
+                optical_to_rgb(m2_preview),
+                caption="🧩 Baseline Reconstruction Stitched",
+                use_container_width=True,
+            )
 
         # Download Buttons
         st.divider()
-        st.header("📥 Download Products")
-        st.subheader("Download Reconstructed Products")
-        col_dl_1, col_dl_2, col_dl_3 = st.columns(3)
-
-        # M1 Download
-        with open(stitched_outputs["model1_output"], "rb") as f:
-            col_dl_1.download_button(
-                label="📥 Download Model 1 (SAR Fusion) GeoTIFF",
-                data=f.read(),
-                file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model1.tif",
-                mime="image/tiff",
-            )
-
-        # M2 Download
-        with open(stitched_outputs["model2_output"], "rb") as f:
-            col_dl_2.download_button(
-                label="📥 Download Model 2 (Baseline) GeoTIFF",
-                data=f.read(),
-                file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model2.tif",
-                mime="image/tiff",
-            )
-
-        # Mask Download
-        with open(stitched_outputs["cloud_mask"], "rb") as f:
-            col_dl_3.download_button(
-                label="📥 Download Cloud Mask GeoTIFF",
-                data=f.read(),
-                file_name=f"{Path(uploaded_opt.name).stem}_cloud_mask.tif",
-                mime="image/tiff",
-            )
+        with tab3:
+            st.header("📥 Download Products")
+            st.subheader("Download Reconstructed Products")
+            col_dl_1, col_dl_2, col_dl_3 = st.columns(3)
+    
+            # M1 Download
+            with open(stitched_outputs["model1_output"], "rb") as f:
+                col_dl_1.download_button(
+                    label="📥 Download Model 1 (SAR Fusion) GeoTIFF",
+                    data=f.read(),
+                    file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model1.tif",
+                    mime="image/tiff",
+                )
+    
+            # M2 Download
+            with open(stitched_outputs["model2_output"], "rb") as f:
+                col_dl_2.download_button(
+                    label="📥 Download Model 2 (Baseline) GeoTIFF",
+                    data=f.read(),
+                    file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model2.tif",
+                    mime="image/tiff",
+                )
+    
+            # Mask Download
+            with open(stitched_outputs["cloud_mask"], "rb") as f:
+                col_dl_3.download_button(
+                    label="📥 Download Cloud Mask GeoTIFF",
+                    data=f.read(),
+                    file_name=f"{Path(uploaded_opt.name).stem}_cloud_mask.tif",
+                    mime="image/tiff",
+                )
 
         # Clean up temp inputs
         opt_temp_path.unlink(missing_ok=True)
