@@ -18,3 +18,4 @@ data/cloud_masks/*
 !data/processed/.gitkeep
 !data/cloud_masks/.gitkeep
 SKILL.md
+temp/
