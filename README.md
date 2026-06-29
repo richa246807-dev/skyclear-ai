@@ -1,18 +1,176 @@
-# SkyClearAI - Operational SAR-Optical Fusion and Cloud Removal
+# 🛰 SkyClearAI
 
-SkyClearAI is a production-grade framework designed to reconstruct cloud-covered optical satellite imagery (Sentinel-2) by leveraging Synthetic Aperture Radar (SAR) data (Sentinel-1 GRD). It uses a deep learning U-Net generator with PatchGAN adversarial training (Model 1) and compares results against zero-shot inpainting baselines (Model 2). 
+<h3 align="center">
+AI-Powered Earth Observation Intelligence Platform
+</h3>
 
-This project is tailored for real-world operations, featuring real data acquisition from STAC APIs, automated geographic co-registration, s2cloudless cloud mask extraction, and overlap-blended tiled reconstruction of large satellite scenes.
+<p align="center">
+Cloud-Free Satellite Image Reconstruction using Sentinel-1 SAR Fusion, Deep Learning and Intelligent GeoTIFF Stitching
+</p>
+
+<p align="center">
+
+![ISRO](https://img.shields.io/badge/ISRO-Hackathon%202026-blueviolet?style=for-the-badge)
+
+![Python](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python)
+
+![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red?style=for-the-badge&logo=pytorch)
+
+![Streamlit](https://img.shields.io/badge/Streamlit-WebApp-FF4B4B?style=for-the-badge&logo=streamlit)
+
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
+</p>
+
+<p align="center">
+<img src="assets/screenshots/home.png" width="1000">
+</p>
+
+<p align="center">
+<b>Interactive Streamlit Prototype Dashboard</b><br>
+Cloud Detection • SAR Fusion • AI Reconstruction • NDVI Analysis • GeoTIFF Export
+</p>
+
 
 ---
 
-## Key Capabilities
+## 🌍 Overview
 
-1. **Real Data Acquisition**: Connects directly to the Element84 Earth Search STAC API to dynamically query, crop, and download paired clear/cloudy Sentinel-2 scenes and co-temporal Sentinel-1 GRD imagery using windowed COG reads.
-2. **SAR-Optical Co-registration**: Warps Sentinel-1 SAR VV/VH polarization channels onto the exact coordinate system, bounding box, spatial transform, and dimensions of the optical grid using high-fidelity geographic reprojection.
-3. **Real Cloud Masking**: Employs the s2cloudless pixel detector to extract realistic cloud shapes from genuinely cloudy scenes instead of resorting to simple procedural noise (e.g. Perlin noise).
-4. **GeoTIFF Stitching and Overlap Blending**: Processes large satellite scenes by splitting them into overlapping tiles, running predictions, and re-assembling them back to a fully georeferenced output GeoTIFF using 2D feathering weights to eliminate seam artifacts.
-5. **Interactive Web Application**: Streamlit dashboard designed to upload large cloudy optical and SAR GeoTIFFs, run tiled reconstructions, visualize predictions, and download stitched products.
+SkyClearAI is an AI-powered Earth Observation platform developed for the **ISRO Bharatiya Antariksh Hackathon 2026**.
+
+The platform reconstructs cloud-obstructed Sentinel-2 satellite imagery using Sentinel-1 SAR Fusion and Deep Learning. It generates cloud-free satellite imagery, NDVI vegetation analysis, AI-generated Earth Observation insights, quality metrics, and downloadable GeoTIFF products through an interactive Streamlit interface.
+
+## 📑 Table of Contents
+
+- [Overview](#-overview)
+- [Prototype Preview](#-prototype-preview)
+- [Key Features](#-key-features)
+- [Technical Overview](#-technical-overview)
+- [Key Capabilities](#key-capabilities)
+- [Project Structure](#project-structure)
+- [Installation](#installation-and-setup)
+- [Workflow](#step-by-step-operational-workflow)
+- [Technology Stack](#-technology-stack)
+- [Testing](#testing)
+- [Future Scope](#-future-scope)
+- [License](#-license)
+
+# 📸 Prototype Preview
+
+## 🏠 Home Dashboard
+
+<p align="center">
+<img src="assets/screenshots/home.png" width="900">
+</p>
+
+---
+## 📤 Upload Module
+
+<p align="center">
+<img src="assets/screenshots/upload.png" width="900">
+</p>
+
+---
+
+## 📊 Satellite Analysis Dashboard
+
+<p align="center">
+<img src="assets/screenshots/dashboard.png" width="900">
+</p>
+
+---
+
+## 🔄 Before / After Reconstruction
+
+<p align="center">
+<img src="assets/screenshots/comparison.png" width="900">
+</p>
+
+---
+
+## 🌱 NDVI Analysis
+
+<p align="center">
+<img src="assets/screenshots/ndvi.png" width="900">
+</p>
+
+---
+
+## 🧠 AI Earth Observation Report
+
+<p align="center">
+<img src="assets/screenshots/insights.png" width="900">
+</p>
+
+---
+
+## 📈 Reconstruction Quality Assessment
+
+<p align="center">
+<img src="assets/screenshots/metrics.png" width="900">
+</p>
+
+# ✨ Key Features
+
+- ☁ AI-Based Cloud Detection
+- 📡 Sentinel-1 SAR Fusion
+- 🤖 Deep Learning Reconstruction
+- 🧩 Intelligent GeoTIFF Stitching
+- 🔄 Interactive Before/After Comparison
+- 🌱 NDVI Vegetation Analysis
+- 🧠 AI Earth Observation Report
+- 📊 PSNR, SSIM & SAM Evaluation
+- 📥 Downloadable GeoTIFF Outputs
+- 🌍 Streamlit-based Interactive Dashboard
+
+
+## 🚀 Technical Overview
+
+
+SkyClearAI is a production-grade framework 
+designed to reconstruct cloud-covered optical 
+satellite imagery (Sentinel-2) by leveraging 
+Synthetic Aperture Radar (SAR) data (Sentinel-1 
+GRD). It uses a deep learning U-Net generator with
+PatchGAN adversarial training (Model 1) and 
+compares results against zero-shot inpainting 
+baselines (Model 2). 
+
+
+This project is tailored for real-world 
+operations, featuring real data acquisition from 
+STAC APIs, automated geographic co-registration, 
+s2cloudless cloud mask extraction, and 
+overlap-blended tiled reconstruction of large 
+satellite scenes.
+
+
+---
+
+
+## ✅ Key Capabilities
+
+- **🌍 Real Data Acquisition**  
+  Connects directly to the Element84 Earth Search STAC API to dynamically query, crop, and download paired clear/cloudy Sentinel-2 scenes along with co-temporal Sentinel-1 GRD imagery using efficient windowed COG reads.
+
+- **📡 SAR–Optical Co-registration**  
+  Warps Sentinel-1 SAR VV/VH polarization channels onto the exact coordinate system, bounding box, spatial transform, and dimensions of the Sentinel-2 optical grid using high-fidelity geographic reprojection.
+
+- **☁ Real Cloud Masking**  
+  Utilizes the **s2cloudless** pixel detector to generate realistic cloud masks from genuine cloudy Sentinel-2 scenes instead of relying on synthetic procedural noise.
+
+- **🧩 GeoTIFF Stitching & Overlap Blending**  
+  Splits large satellite scenes into overlapping tiles, performs AI reconstruction, and seamlessly stitches predictions back into a fully georeferenced GeoTIFF using 2D feathering weights to eliminate seam artifacts.
+
+- **🤖 AI-Powered Reconstruction**  
+  Reconstructs cloud-covered optical imagery using a U-Net Generator with Sentinel-1 SAR Fusion and compares results with zero-shot inpainting baselines for performance evaluation.
+
+- **📊 Quality Assessment**  
+  Evaluates reconstruction performance using PSNR, SSIM, SAM, NDVI analysis, cloud coverage estimation, and vegetation change assessment.
+
+- **🖥 Interactive Streamlit Dashboard**  
+  Provides an intuitive web interface for uploading Sentinel-1 and Sentinel-2 GeoTIFFs, running AI inference, visualizing results, comparing reconstructions, and downloading cloud-free outputs.
+
 
 ---
 
@@ -27,7 +185,7 @@ skyclear-ai/
 │   └── processed/              # Tiled train/val/test NumPy .npz packages
 ├── docs/
 │   ├── ARCHITECTURE.md         # Detailed architectural designs
-│   └── README.md               # Quick setup guidelines
+   
 ├── src/
 │   ├── models/
 │   │   ├── baseline_inpaint.py # Model 2 baseline adapters (LaMa, SD, Simple)
@@ -197,6 +355,27 @@ $$P_{final}(x, y) = \frac{\sum_{t} W_t(x, y) \cdot P_t(x, y)}{\sum_{t} W_t(x, y)
 This ensures transitions between neighboring patches are visually seamless, preserving the target CRS and transform exactly.
 
 ---
+# 🛠 Technology Stack
+
+### AI & Deep Learning
+- PyTorch
+- NumPy
+
+### Geospatial
+- Rasterio
+- Sentinel-1 SAR
+- Sentinel-2 Optical
+- GeoTIFF
+
+### Frontend
+- Streamlit
+
+### Visualization
+- Matplotlib
+
+### Backend Utilities
+- Python
+
 
 ## Testing
 
@@ -205,3 +384,30 @@ To execute the unit and integration tests (including the Generator/Discriminator
 ```bash
 pytest tests/test_smoke.py
 ```
+# 🚀 Future Scope
+
+- Real-time satellite processing
+- Multi-temporal cloud removal
+- Crop health prediction
+- Flood monitoring automation
+- Large-scale Earth observation analytics
+
+
+---
+
+# 📜 License
+
+This project was developed as part of the **ISRO Bharatiya Antariksh Hackathon 2026**.
+
+Released under the MIT License.
+
+
+---
+
+<p align="center">
+
+⭐ If you found this project interesting, consider giving it a star.
+
+Developed for the ISRO Bharatiya Antariksh Hackathon 2026.
+
+</p>
