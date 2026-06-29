@@ -12,3 +12,7 @@ scikit-image>=0.20.0
 requests>=2.28.0
 pytest>=8.0.0
 ruff>=0.5.0
+
+streamlit-image-comparison>=0.0.4
+opencv-python-headless>=4.10.0
+pandas>=2.0.0
