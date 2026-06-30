@@ -128,7 +128,12 @@ def main() -> None:
     import torch
     import streamlit as st
 
-    st.set_page_config(page_title="SkyClearAI", page_icon="🛰️", layout="wide")
+    st.set_page_config(
+        page_title="SkyClearAI",
+        page_icon="🛰️",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
     st.markdown(
         """
         <style>
@@ -182,6 +187,31 @@ def main() -> None:
             background:#13293D;
             border-radius:16px;
             padding:12px;
+        }
+        
+        section[data-testid="stFileUploader"]{
+        border:2px dashed #38BDF8 !important;
+        background:#0F2238 !important;
+        border-radius:16px;
+        padding:18px;
+        }
+        
+        section[data-testid="stFileUploader"] label{
+            color:white !important;
+            font-weight:700;
+            font-size:16px;
+        }
+        
+        div[data-testid="stFileUploaderDropzone"]{
+            background:#13293D !important;
+        }
+        
+        div[data-testid="stFileUploaderDropzone"] p{
+            color:white !important;
+        }
+        
+        div[data-testid="stFileUploaderDropzoneInstructions"]{
+            color:white !important;
         }
         
         /* ===== File Uploader Text ===== */
@@ -239,14 +269,65 @@ def main() -> None:
         h4{
         color:#FFFFFF !important;
         }
+        
+        /* ===========================
+        Sidebar Toggle Icon
+        =========================== */
+
+        [data-testid="collapsedControl"]{
+            background: transparent !important;
+            border: none !important;
+        }
+        
+        [data-testid="collapsedControl"] button{
+            color: white !important;
+            background: transparent !important;
+        }
+        
+        [data-testid="collapsedControl"] svg{
+            fill: white !important;
+            stroke: white !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+        
+        [data-testid="collapsedControl"]:hover svg{
+            fill: #38BDF8 !important;
+            stroke: #38BDF8 !important;
+        }
+
+        /* ===== Fix Sidebar Toggle Icon ===== */
+
+        div[data-testid="stSidebarCollapseButton"] button{
+            color: #FFFFFF !important;
+            background: transparent !important;
+        }
+        
+        div[data-testid="stSidebarCollapseButton"] span{
+            color: #FFFFFF !important;
+        }
+        
+        div[data-testid="stSidebarCollapseButton"] span[data-testid="stIconMaterial"]{
+            color: #FFFFFF !important;
+            font-size: 28px !important;
+        }
+        
+        div[data-testid="stSidebarCollapseButton"] button:hover{
+            color: #38BDF8 !important;
+        }
+        
+        div[data-testid="stSidebarCollapseButton"] button:hover span{
+            color: #38BDF8 !important;
+        }
+                
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    st.title("🛰 SkyClearAI")
+    st.title(" SkyClearAI")
 
-    st.badge("ISRO Bharatiya Antariksh Hackathon 2026", icon="🚀", color="blue")
+    st.badge("ISRO Bharatiya Antariksh Hackathon 2026", color="blue")
 
     st.subheader("AI-Powered Earth Observation Intelligence Platform")
 
@@ -256,26 +337,8 @@ def main() -> None:
     )
 
     st.success(
-        "🌍 Applications: Agriculture • Flood Monitoring • Forest Analysis • Urban Mapping • Disaster Response"
+        " Applications: Agriculture • Flood Monitoring • Forest Analysis • Urban Mapping • Disaster Response"
     )
-
-    c1, c2, c3 = st.columns(3)
-
-    c1.info("☁ Sentinel-2")
-    c2.info("📡 Sentinel-1")
-    c3.info("🌱 NDVI Analysis")
-
-    st.divider()
-
-    col1, col2, col3, col4, col5 = st.columns(5)
-
-    col1.success("🌾 Agriculture")
-    col2.info("🌊 Flood")
-    col3.success("🌲 Forest")
-    col4.info("🏙 Urban")
-    col5.error("🚨 Disaster")
-
-    st.divider()
 
     # Sidebar inputs
     st.sidebar.header("Configuration")
@@ -300,16 +363,18 @@ def main() -> None:
     )
 
     # File uploads
-    st.markdown("## 📤 Upload Satellite Data")
+    st.markdown("## Upload Satellite Data")
 
     st.info("""
-    ### 📂 Required Inputs
+    ### Required Inputs
     
-    ☁ Sentinel-2 Cloudy Image
-    
-    📡 Sentinel-1 SAR Image
-    
-    ☁ Cloud Mask (Optional)
+    • Sentinel-2 Cloudy Image (.tif)
+
+    • Sentinel-1 SAR Image (.tif)
+
+    • Cloud Mask (.tif) *(Optional)*
+   
+   
     """)
 
     st.divider()
@@ -317,13 +382,13 @@ def main() -> None:
     col_upload_1, col_upload_2, col_upload_3 = st.columns(3)
 
     uploaded_opt = col_upload_1.file_uploader(
-        "☁️ Sentinel-2 Optical Image", type=["tif", "tiff"]
+        "Sentinel-2 Optical Image", type=["tif", "tiff"]
     )
     uploaded_sar = col_upload_2.file_uploader(
-        "📡 Sentinel-1 SAR Image", type=["tif", "tiff"]
+        "Sentinel-1 SAR Image", type=["tif", "tiff"]
     )
     uploaded_mask = col_upload_3.file_uploader(
-        "☁️ Cloud Mask (Optional)", type=["tif", "tiff"]
+        "Cloud Mask (Optional)", type=["tif", "tiff"]
     )
 
     if uploaded_opt is None or uploaded_sar is None:
@@ -333,7 +398,7 @@ def main() -> None:
         st.stop()
 
     if st.button(
-        "🚀 Start AI Reconstruction",
+        "Start AI Reconstruction",
         type="primary",
         use_container_width=True,
     ):
@@ -342,7 +407,7 @@ def main() -> None:
 
         progress = st.progress(0)
 
-        status.info("🚀 Initializing SkyClearAI...")
+        status.info(" Initializing SkyClearAI...")
         progress.progress(10)
 
         # Save uploaded files to temp
@@ -371,7 +436,7 @@ def main() -> None:
             st.stop()
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        status.info("🧠 Loading AI Models...")
+        status.info("Loading AI Models...")
         progress.progress(25)
         with st.spinner("Loading models and preparing stitcher..."):
             try:
@@ -397,7 +462,7 @@ def main() -> None:
             except Exception as e:
                 st.error(f"Error loading models: {e}")
                 st.stop()
-        status.info("📡 Processing Satellite Imagery...")
+        status.info(" Processing Satellite Imagery...")
         progress.progress(60)
         with st.spinner(
             "Performing tiled reconstruction and blending overlap seams..."
@@ -412,13 +477,13 @@ def main() -> None:
                 )
 
                 st.success("Reconstruction complete!")
-                status.success("✅ Reconstruction Completed Successfully!")
+                status.success("Reconstruction Completed Successfully!")
 
                 progress.progress(100)
                 processing_time = time.time() - start_time
                 col1, col2, col3, col4 = st.columns(4)
 
-                col1.metric("Status", "Completed ✅")
+                col1.metric("Status", "Completed ")
                 col2.metric("Patch Size", patch_size)
                 col3.metric("Device", device.upper())
                 col4.metric("Model", "SkyClearAI")
@@ -453,51 +518,42 @@ def main() -> None:
         # Display results
         st.divider()
 
-        st.markdown("## 📊 Satellite Analysis Dashboard")
+        st.markdown("## Satellite Analysis Dashboard")
 
         st.markdown(
             "<p style='color:#FFFFFF;font-size:15px;'>Automatically generated interpretation of the reconstructed satellite scene.</p>",
-            unsafe_allow_html=True,
+             unsafe_allow_html=True,
         )
+        st.markdown("<br>", unsafe_allow_html=True)
 
         c1, c2, c3, c4, c5, c6 = st.columns(6)
 
         c1.metric(
-        "☁ Cloud Coverage",
-        f"{cloud_percentage:.1f}%",
-        help="Detected cloud pixels"
+            "Cloud Coverage", f"{cloud_percentage:.1f}%", help="Detected cloud pixels"
         )
 
-        c2.metric(
-            "📐 Resolution",
-            f"{width} × {height}",
-            help="Image resolution"
-        )
+        c2.metric(" Resolution", f"{width} × {height}", help="Image resolution")
 
-        c3.metric(
-            "🧩 Patch Size",
-            f"{patch_size}px",
-            help="Inference tile size"
-        )
+        c3.metric("Patch Size", f"{patch_size}px", help="Inference tile size")
 
         c4.metric(
-            "💻 Compute",
+            "Compute",
             device.upper(),
         )
 
         c5.metric(
-            "⚡ Runtime",
+            "Runtime",
             f"{processing_time:.2f}s",
         )
 
         c6.metric(
-            "✅ Reconstruction",
+            "Reconstruction",
             "Success",
         )
 
         st.divider()
 
-        st.header("🧠 AI Insights")
+        st.header("AI Insights")
         st.caption(
             "Automatically generated interpretation of the reconstructed satellite scene."
         )
@@ -505,9 +561,9 @@ def main() -> None:
 
         with insight_box:
 
-            st.success("### 🌍 AI Earth Observation Report")
+            st.success("### AI Earth Observation Report")
 
-            st.write(f"☁ **Cloud Coverage Detected:** {cloud_percentage:.1f}%")
+            st.write(f"**Cloud Coverage Detected:** {cloud_percentage:.1f}%")
 
             if cloud_percentage > 60:
                 st.warning(
@@ -523,35 +579,33 @@ def main() -> None:
                 )
 
             if avg_ndvi > 0.6:
-                st.success(
-                    "🌱 Healthy vegetation is dominant across the observed region."
-                )
+                st.success("Healthy vegetation is dominant across the observed region.")
             elif avg_ndvi > 0.3:
                 st.info(
-                    "🌾 Moderate vegetation detected with partially healthy crop cover."
+                    "Moderate vegetation detected with partially healthy crop cover."
                 )
             else:
                 st.warning(
-                    "🟤 Sparse vegetation detected. Further investigation is recommended."
+                    " Sparse vegetation detected. Further investigation is recommended."
                 )
 
             st.markdown(
                 """
                 <h4 style="color:#FFFFFF;">
-                🛰 Recommended Applications
+                Recommended Applications
                 </h4>
                 
                 <div style="color:#FFFFFF; font-size:16px; line-height:2;">
                 
-                🌾 Precision Agriculture<br>
-                
-                🌊 Flood Monitoring<br>
-                
-                🌲 Forest Monitoring<br>
-                
-                🏙 Urban Land Use Mapping<br>
-                
-                🚨 Disaster Response
+                Precision Agriculture<br>
+        
+                Flood Monitoring<br>
+        
+                Forest Monitoring<br>
+        
+                Urban Land Use Mapping<br>
+        
+                Disaster Response
                 
                 </div>
                 """,
@@ -560,80 +614,74 @@ def main() -> None:
 
         tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(
             [
-                "🔄 Comparison",
-                "🖼 Visual Preview",
-                "🌱 NDVI Analysis",
-                "🧠 AI Pipeline",
-                "🏗 Architecture",
-                "📊 Quality Metrics",
-                "📥 Downloads",
-                "ℹ About Model",
+                "Comparison",
+                "Visual Preview",
+                "NDVI Analysis",
+                "AI Pipeline",
+                "Architecture",
+                " Quality Metrics",
+                "Downloads",
+                "About Model",
             ]
         )
         with tab1:
             st.info(
                 "Move the slider to compare the original cloudy image with the AI reconstructed output."
             )
-            st.header("🖼 Reconstruction Results")
-            st.subheader("🔄 Before / After Comparison")
+            st.header("Reconstruction Results")
+            st.subheader("Before / After Comparison")
             st.caption(
                 "Drag the slider to compare the original cloudy image with the AI reconstructed image."
             )
             image_comparison(
-            img1=resize_for_comparison(optical_to_rgb(opt_preview)),
-            img2=resize_for_comparison(optical_to_rgb(m1_preview)),
-            label1="Cloudy Sentinel-2",
-            label2="SkyClearAI Reconstruction",
-        )
+                img1=resize_for_comparison(optical_to_rgb(opt_preview)),
+                img2=resize_for_comparison(optical_to_rgb(m1_preview)),
+                label1="Cloudy Sentinel-2",
+                label2="SkyClearAI Reconstruction",
+            )
         with tab2:
             col_res_1, col_res_2, col_res_3, col_res_4 = st.columns(4)
             col_res_1.image(
                 optical_to_rgb(opt_preview),
-                caption="☁️ Cloudy Optical Image",
+                caption="Cloudy Optical Image",
                 use_container_width=True,
             )
             col_res_2.image(
                 mask_preview,
-                caption="☁️ Estimated Cloud Mask",
+                caption="Estimated Cloud Mask",
                 clamp=True,
                 use_container_width=True,
             )
             col_res_3.image(
                 optical_to_rgb(m1_preview),
-                caption="🤖 AI Reconstruction (SAR Fusion) Stitched",
+                caption="AI Reconstruction (SAR Fusion) Stitched",
                 use_container_width=True,
             )
             col_res_4.image(
                 optical_to_rgb(m2_preview),
-                caption="🧩 Baseline Reconstruction Stitched",
+                caption="Baseline Reconstruction Stitched",
                 use_container_width=True,
             )
 
         with tab3:
 
-            st.header("🌱 NDVI Analysis")
+            st.header("NDVI Analysis")
             st.caption(
                 "Normalized Difference Vegetation Index generated from reconstructed imagery."
             )
             st.success(
                 "Green represents healthier vegetation. The Difference Map highlights vegetation changes after reconstruction."
             )
-            st.subheader("🌱 Vegetation Health Analysis")
+            st.subheader("Vegetation Health Analysis")
 
             col_ndvi1, col_ndvi2, col_ndvi3 = st.columns(3)
             st.divider()
 
             m1, m2 = st.columns(2)
 
-            m1.metric(
-                "🌿 Average NDVI",
-                f"{avg_ndvi:.3f}"
-            )
+            m1.metric("Average NDVI", f"{avg_ndvi:.3f}")
 
-            m2.metric(
-                "🌱 Healthy Vegetation",
-                f"{healthy_percentage:.1f}%"
-            )
+            m2.metric("Healthy Vegetation", f"{healthy_percentage:.1f}%")
 
             st.divider()
 
@@ -641,7 +689,6 @@ def main() -> None:
 
                 st.image(
                     input_ndvi_rgb,
-                    
                     caption="Input NDVI",
                     clamp=True,
                     use_container_width=True,
@@ -660,41 +707,40 @@ def main() -> None:
                     ndvi_difference_rgb,
                     caption="NDVI Change Map",
                     use_container_width=True,
-                )  
-            st.info("""
-            🟢 Green = Higher Vegetation
+                )
+            st.markdown("""
+            **Legend**
             
-            ⚪ White = Minimal Change
+            • Green — Higher Vegetation
             
-            🔴 Red = Lower Vegetation
+            • White — Minimal Change
+            
+            • Red — Lower Vegetation
             """)
 
         with tab4:
 
-            st.header("🧠 AI Processing Pipeline")
+            st.markdown("""
+            SkyClearAI End-to-End Workflow
+            """)
 
             st.markdown(
-            """
-            ### SkyClearAI End-to-End Workflow
-            """
-                )
-            st.header("🧠 AI Processing Pipeline")
-
-            st.markdown("Complete end-to-end reconstruction workflow used by SkyClearAI.")
+                "Complete end-to-end reconstruction workflow used by SkyClearAI."
+            )
 
             st.divider()
 
             steps = [
-                "☁ Cloudy Sentinel-2 Image",
-                "☁ Automatic Cloud Detection",
-                "📡 Sentinel-1 SAR Registration",
-                "🧩 Patch Extraction (256×256)",
-                "🧠 7-Channel Tensor Generation",
-                "🤖 SAR Fusion U-Net",
-                "🎯 PatchGAN Refinement",
-                "🖼 Tile Stitching",
-                "🌱 NDVI Analysis",
-                "📥 Cloud-Free GeoTIFF Output",
+                "Cloudy Sentinel-2 Image",
+                "Automatic Cloud Detection",
+                "Sentinel-1 SAR Registration",
+                "Patch Extraction (256×256)",
+                "7-Channel Tensor Generation",
+                "SAR Fusion U-Net",
+                "PatchGAN Refinement",
+                "Tile Stitching",
+                "NDVI Analysis",
+                "Cloud-Free GeoTIFF Output",
             ]
 
             for i, step in enumerate(steps):
@@ -709,7 +755,7 @@ def main() -> None:
 
         with tab5:
 
-            st.header("🏗 AI Model Architecture")
+            st.header("AI Model Architecture")
 
             st.markdown(
                 "SkyClearAI combines Sentinel-2 optical imagery with Sentinel-1 SAR data using a deep learning reconstruction pipeline."
@@ -718,15 +764,15 @@ def main() -> None:
             st.divider()
 
             architecture_steps = [
-                "🛰 Sentinel-2 Optical Image",
-                "📡 Sentinel-1 SAR Image",
-                "☁ Cloud Mask Generation",
-                "🧩 7-Channel Input Tensor",
-                "🧠 U-Net Generator",
-                "🎯 PatchGAN Discriminator",
-                "🖼 Cloud-Free Reconstruction",
-                "🌱 NDVI Analysis",
-                "📥 GeoTIFF Output",
+                " Sentinel-2 Optical Image",
+                " Sentinel-1 SAR Image",
+                " Cloud Mask Generation",
+                " 7-Channel Input Tensor",
+                " U-Net Generator",
+                " PatchGAN Discriminator",
+                " Cloud-Free Reconstruction",
+                " NDVI Analysis",
+                " GeoTIFF Output",
             ]
 
             for i, step in enumerate(architecture_steps):
@@ -738,19 +784,17 @@ def main() -> None:
                     st.markdown(
                         "<h2 style='text-align:center;'>⬇</h2>",
                         unsafe_allow_html=True,
-                    )            
+                    )
 
         with tab6:
 
-            st.header("📊 Reconstruction Quality Assessment")
+            st.header("Reconstruction Quality Assessment")
 
             st.caption(
                 "Image quality evaluation using standard remote sensing metrics."
             )
 
-            st.markdown(
-                "Performance evaluation of reconstructed satellite imagery."
-            )
+            st.markdown("Performance evaluation of reconstructed satellite imagery.")
 
             m1, m2, m3 = st.columns(3)
 
@@ -770,33 +814,28 @@ def main() -> None:
 
             m6.metric("Patch Size", f"{patch_size}px")
 
-            st.info(
-                """
+            st.info("""
             SSIM ↑ = Better structural similarity
             
             PSNR ↑ = Better reconstruction quality
             
             SAM ↓ = Better spectral preservation
-            """
-                )  
+            """)
 
         # Download Buttons
         st.divider()
 
         with tab7:
-            st.header("📥 Download Products")
-            st.subheader("Download Reconstructed Products")
-            st.header("📥 Export Results")
 
-            st.caption(
-            "Download reconstructed outputs in GeoTIFF format."
-            )
+            st.header("Export Reconstructed Products")
+
+            st.caption("Download reconstructed outputs in GeoTIFF format.")
             col_dl_1, col_dl_2, col_dl_3 = st.columns(3)
 
             # M1 Download
             with open(stitched_outputs["model1_output"], "rb") as f:
                 col_dl_1.download_button(
-                    label="📥 Download Model 1 (SAR Fusion) GeoTIFF",
+                    label="Download Model 1 (SAR Fusion) GeoTIFF",
                     data=f.read(),
                     file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model1.tif",
                     mime="image/tiff",
@@ -805,7 +844,7 @@ def main() -> None:
             # M2 Download
             with open(stitched_outputs["model2_output"], "rb") as f:
                 col_dl_2.download_button(
-                    label="📥 Download Model 2 (Baseline) GeoTIFF",
+                    label="Download Model 2 (Baseline) GeoTIFF",
                     data=f.read(),
                     file_name=f"{Path(uploaded_opt.name).stem}_reconstructed_model2.tif",
                     mime="image/tiff",
@@ -814,7 +853,7 @@ def main() -> None:
             # Mask Download
             with open(stitched_outputs["cloud_mask"], "rb") as f:
                 col_dl_3.download_button(
-                    label="📥 Download Cloud Mask GeoTIFF",
+                    label="Download Cloud Mask GeoTIFF",
                     data=f.read(),
                     file_name=f"{Path(uploaded_opt.name).stem}_cloud_mask.tif",
                     mime="image/tiff",
@@ -822,28 +861,36 @@ def main() -> None:
 
         with tab8:
 
-            st.header("ℹ About SkyClearAI")
+            st.header("About SkyClearAI")
 
             st.caption(
                 "Operational prototype developed for ISRO Bharatiya Antariksh Hackathon 2026."
             )
 
-            st.markdown("""
-            ### SkyClearAI
+            st.markdown(
+                """
+            <div style="color:white">
+            
+            <h3>SkyClearAI</h3>
             
             AI-powered cloud removal system for optical satellite imagery.
             
-            #### Features
+            <h4>Core Features</h4>
             
-            - SAR + Optical Fusion
-            - Cloud Detection
-            - GeoTIFF Support
-            - NDVI Analysis
-            - Quality Metrics
-            - Downloadable Results
+            <ul>
+            <li>SAR–Optical Fusion</li>
+            <li>Cloud Detection</li>
+            <li>GeoTIFF Support</li>
+            <li>NDVI Analysis</li>
+            <li>Quality Metrics</li>
+            <li>Downloadable Results</li>
+            </ul>
             
-            **Developed for ISRO Bharatiya Antariksh Hackathon 2026**
-            """)
+            <b>Developed for ISRO Bharatiya Antariksh Hackathon 2026</b>
+            
+            </div>
+            """,
+                unsafe_allow_html=True)
 
         # Clean up temp inputs
         opt_temp_path.unlink(missing_ok=True)
@@ -854,13 +901,11 @@ def main() -> None:
         st.divider()
         left, center, right = st.columns(3)
 
-        left.caption("🛰 SkyClearAI v1.0")
+        left.caption("SkyClearAI v1.0")
 
-        center.caption("ISRO Bharatiya Antariksh Hackathon 2026")
+        center.caption("Developed for ISRO Bharatiya Antariksh Hackathon 2026")
 
         right.caption("Powered by PyTorch • Rasterio • Streamlit")
-
-        st.caption("SkyClearAI v1.0 | Developed for ISRO Bharatiya Antariksh Hackathon 2026")
 
 
 if __name__ == "__main__":
